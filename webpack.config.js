@@ -2,7 +2,10 @@ var path = require('path');
 var webpack = require('webpack');
 var glob = require('glob');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
-// var HtmlWebpackPlugin = require('html-webpack-plugin');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
+var OpenBrowserPlugin = require('open-browser-webpack-plugin');
+var CleanPlugin = require('clean-webpack-plugin');
+var CommonsChunkPlugin = webpack.optimize.CommonsChunkPlugin;
 var getEntry = function() {
     var entry = {};
     //读取开发目录,并进行路径裁剪
@@ -14,7 +17,9 @@ var getEntry = function() {
             n = n.slice(0, n.lastIndexOf('/'));
             //保存各个组件的入口
             entry[n] = name;
+            // entry[n].unshift('webpack-dev-server/client?http://localhost:8080','webpack/hot/dev-server');
         });
+    console.log(entry)
     return entry;
 };
 module.exports = {
@@ -22,52 +27,48 @@ module.exports = {
     output: {
         path: path.resolve(__dirname + "/dist"),
         filename: "./js/[name].js",
-        publicPath: "/assets"
+        publicPath: ""
     },
     resolve: {
         //配置项,设置忽略js后缀
-        extensions: ['', '.js', '.less', '.scss', '.css', '.png', '.jpg'],
+        extensions: ['', '.js', '.less', '.css', '.png', '.jpg'],
         // 模块别名
         alias: {}
     },
     module: {
         loaders: [
             {
-                test: /\.png|jpg|jpeg|gif$/,
-                loader: "url?limit=10000&name=./images/[name].[ext]?[hash:10]"
+                test: /\.(png|jpg|jpeg|gif)$/,
+                loader: 'url?limit=10000&name=./images/[name].[ext]'
             },
             {
-                test: /\.css$/,
-                loader: ExtractTextPlugin.extract("style-loader", "css-loader")
+                test: /\.less$/,
+                loader: ExtractTextPlugin.extract('style', 'css!less')
             },
             {
-                test: /\.|less$/,
-                loader: ExtractTextPlugin.extract("style-loader", "less-loader")
-            },
-            {
-                test: /\.js$/,
+                test: /\.js[x]?$/,
                 exclude: /node_modules/,
-                loader: 'babel-loader?presets[]=es2015'
+                loader: 'babel?presets[]=es2015&presets[]=react'
             }
         ]
     },
-    babel: { //配置babel支持ES6
-        "presets": ["es2015"],
-        "plugins": ["transform-runtime"]
-    },
     plugins: [
-        new ExtractTextPlugin('./css/[name].css'),
-        // new HtmlWebpackPlugin('./html/[name].html'),
+        new HtmlWebpackPlugin('./[name].html'),
+        new CleanPlugin('./dist'),
         // 启动热替换
         new webpack.HotModuleReplacementPlugin(),
-        new ExtractTextPlugin("style.css", {
+        new ExtractTextPlugin('./css/[name].css', {
             allChunks: true
         }),
-    new webpack.NoErrorsPlugin()
-        /*,
-                new OpenBrowserPlugin({
-                    url: 'http://localhost:8080'
-                })*/
+        new webpack.NoErrorsPlugin(),
+        new OpenBrowserPlugin({
+            url: 'http://localhost:8080'
+        }),
+         /* 公共库 */
+        new CommonsChunkPlugin({
+            name: 'vendors',
+            minChunks: Infinity
+        }),
     ]
 };
 // 判断开发环境还是生产环境,添加uglify等插件
@@ -75,9 +76,7 @@ if (process.env.NODE_ENV === 'production') {
     module.exports.plugins = (module.exports.plugins || [])
         .concat([
         new webpack.DefinePlugin({
-                'process.env': {
-                    NODE_ENV: '"production"'
-                }
+                __DEV__: JSON.stringify(JSON.parse(process.env.DEBUG || 'false'))
             }),
         new webpack.optimize.UglifyJsPlugin({
                 compress: {
@@ -85,9 +84,6 @@ if (process.env.NODE_ENV === 'production') {
                 }
             }),
         new webpack.optimize.OccurenceOrderPlugin(),
-        new webpack.EnvironmentPlugin([
-          "NODE_ENV"
-        ])
     ]);
 } else {
     module.exports.devtool = 'source-map';
