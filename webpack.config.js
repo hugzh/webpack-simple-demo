@@ -19,19 +19,20 @@ var getEntry = function() {
             entry[n] = name;
             // entry[n].unshift('webpack-dev-server/client?http://localhost:8080','webpack/hot/dev-server');
         });
-    console.log(entry)
     return entry;
 };
 module.exports = {
     entry: getEntry(),
     output: {
         path: path.resolve(__dirname + "/dist"),
-        filename: "./js/[name].js",
+        filename: "js/[name].js",
+        chunkFilename: 'js/[name].chunk.js',
         publicPath: ""
     },
     resolve: {
         //配置项,设置忽略js后缀
         extensions: ['', '.js', '.less', '.css', '.png', '.jpg'],
+        root: './src',
         // 模块别名
         alias: {}
     },
@@ -49,6 +50,10 @@ module.exports = {
                 test: /\.js[x]?$/,
                 exclude: /node_modules/,
                 loader: 'babel?presets[]=es2015&presets[]=react'
+            },
+            {
+                test: /\.html$/,
+                loader: 'html?attrs=img:src img:srcset'
             }
         ]
     },
@@ -57,7 +62,7 @@ module.exports = {
         new CleanPlugin('./dist'),
         // 启动热替换
         new webpack.HotModuleReplacementPlugin(),
-        new ExtractTextPlugin('./css/[name].css', {
+        new ExtractTextPlugin('[name].css', {
             allChunks: true
         }),
         new webpack.NoErrorsPlugin(),
