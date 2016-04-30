@@ -1,3 +1,3 @@
 require('./style.less');
-require('./index.html');
-console.log('hello world');
+// require('./index.html');
+document.write('<div>hello world</div>');

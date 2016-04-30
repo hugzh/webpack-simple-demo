@@ -97,9 +97,12 @@ if (process.env.NODE_ENV === 'production') {
         contentBase: './dist',
         hot: true,
         historyApiFallback: true,
-        publicPath: "/assets",
+        publicPath: "",
         stats: {
             colors: true
-        }
+        },
+        plugins: [
+        new webpack.HotModuleReplacementPlugin()
+        ]
     };
 }
