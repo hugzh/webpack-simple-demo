@@ -24,7 +24,7 @@ var getEntry = function() {
 module.exports = {
     entry: getEntry(),
     output: {
-        path: path.resolve(__dirname + "/dist"),
+        path: path.resolve(__dirname, "/dist"),
         filename: "js/[name].js",
         chunkFilename: 'js/[name].chunk.js',
         publicPath: ""
@@ -37,25 +37,20 @@ module.exports = {
         alias: {}
     },
     module: {
-        loaders: [
-            {
-                test: /\.(png|jpg|jpeg|gif)$/,
-                loader: 'url?limit=10000&name=./images/[name].[ext]'
-            },
-            {
-                test: /\.less$/,
-                loader: ExtractTextPlugin.extract('style', 'css!less')
-            },
-            {
-                test: /\.js[x]?$/,
-                exclude: /node_modules/,
-                loader: 'babel?presets[]=es2015&presets[]=react'
-            },
-            {
-                test: /\.html$/,
-                loader: 'html?attrs=img:src img:srcset'
-            }
-        ]
+        loaders: [{
+            test: /\.(png|jpg|jpeg|gif)$/,
+            loader: 'url?limit=10000&name=images/[name].[ext]'
+        }, {
+            test: /\.less$/,
+            loader: ExtractTextPlugin.extract('style', 'css!less')
+        }, {
+            test: /\.js[x]?$/,
+            exclude: /node_modules/,
+            loader: 'babel?presets[]=es2015&presets[]=react'
+        }, {
+            test: /\.html$/,
+            loader: 'html?attrs=img:src img:srcset'
+        }]
     },
     plugins: [
         new HtmlWebpackPlugin('./[name].html'),
@@ -69,7 +64,7 @@ module.exports = {
         new OpenBrowserPlugin({
             url: 'http://localhost:8080'
         }),
-         /* 公共库 */
+        /* 公共库 */
         new CommonsChunkPlugin({
             name: 'vendors',
             minChunks: Infinity
@@ -80,16 +75,16 @@ module.exports = {
 if (process.env.NODE_ENV === 'production') {
     module.exports.plugins = (module.exports.plugins || [])
         .concat([
-        new webpack.DefinePlugin({
+            new webpack.DefinePlugin({
                 __DEV__: JSON.stringify(JSON.parse(process.env.DEBUG || 'false'))
             }),
-        new webpack.optimize.UglifyJsPlugin({
+            new webpack.optimize.UglifyJsPlugin({
                 compress: {
                     warnings: false
                 }
             }),
-        new webpack.optimize.OccurenceOrderPlugin(),
-    ]);
+            new webpack.optimize.OccurenceOrderPlugin(),
+        ]);
 } else {
     module.exports.devtool = 'source-map';
     module.exports.devServer = {
