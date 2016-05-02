@@ -24,7 +24,7 @@ var getEntry = function() {
 module.exports = {
     entry: getEntry(),
     output: {
-        path: path.resolve(__dirname, "/dist"),
+        path: path.resolve(__dirname, "./dist"),
         filename: "js/[name].js",
         chunkFilename: 'js/[name].chunk.js',
         publicPath: ""
@@ -53,7 +53,10 @@ module.exports = {
         }]
     },
     plugins: [
-        new HtmlWebpackPlugin('./[name].html'),
+        new HtmlWebpackPlugin({
+            filename: 'index.html',
+            template: './src/index/index.html'
+        }),
         new CleanPlugin('./dist'),
         // 启动热替换
         new webpack.HotModuleReplacementPlugin(),
