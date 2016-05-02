@@ -17,17 +17,17 @@ var getEntry = function() {
             n = n.slice(0, n.lastIndexOf('/'));
             //保存各个组件的入口
             entry[n] = name;
-            // entry[n].unshift('webpack-dev-server/client?http://localhost:8080','webpack/hot/dev-server');
         });
     return entry;
 };
+var prod = process.env.NODE_ENV === 'production' ? true : false;
 module.exports = {
     entry: getEntry(),
     output: {
-        path: path.resolve(__dirname, "./dist"),
-        filename: "js/[name].js",
+        path: path.resolve(__dirname, prod ? "./dist" : "./build"),
+        filename: prod ? "js/[name].min.js" : "js/[name].js",
         chunkFilename: 'js/[name].chunk.js',
-        publicPath: ""
+        // publicPath: prod ? "http:cdn.mydomain.com" : ""
     },
     resolve: {
         //配置项,设置忽略js后缀
@@ -57,7 +57,7 @@ module.exports = {
             filename: 'index.html',
             template: './src/index/index.html'
         }),
-        new CleanPlugin('./dist'),
+        new CleanPlugin(['dist', 'build']),
         // 启动热替换
         new webpack.HotModuleReplacementPlugin(),
         new ExtractTextPlugin('[name].css', {
@@ -92,7 +92,7 @@ if (process.env.NODE_ENV === 'production') {
     module.exports.devtool = 'source-map';
     module.exports.devServer = {
         port: 8080,
-        contentBase: './dist',
+        contentBase: './build',
         hot: true,
         historyApiFallback: true,
         publicPath: "",
