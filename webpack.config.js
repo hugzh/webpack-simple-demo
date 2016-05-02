@@ -27,7 +27,7 @@ module.exports = {
         path: path.resolve(__dirname, prod ? "./dist" : "./build"),
         filename: prod ? "js/[name].min.js" : "js/[name].js",
         chunkFilename: 'js/[name].chunk.js',
-        // publicPath: prod ? "http:cdn.mydomain.com" : ""
+        publicPath: prod ? "http:cdn.mydomain.com" : ""
     },
     resolve: {
         //配置项,设置忽略js后缀

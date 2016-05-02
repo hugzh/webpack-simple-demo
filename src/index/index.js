@@ -1,2 +1,2 @@
-require('./style.less');
+require('./css/style.less');
 require('./index.html');
